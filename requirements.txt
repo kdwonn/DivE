@@ -1,0 +1,24 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+adamp=0.3.0=pypi_0
+cudatoolkit=11.1.74=h6bb024c_0
+cython=0.29.23=pypi_0
+einops=0.3.2=pyhd8ed1ab_0
+gulpio=540.66=pypi_0
+ipython=7.24.1=pypi_0
+matplotlib=3.4.2=pypi_0
+nltk=3.6.2=pyhd3eb1b0_0
+numpy=1.21.2=py38h20f2e39_0
+opencv-python=4.5.2.52=pypi_0
+pycocotools=2.0.2=pypi_0
+python=3.8.12=ha38a3c6_3_cpython
+pytorch=1.8.1=py3.8_cuda11.1_cudnn8.0.5_0
+scipy=1.6.2=py38had2a1c9_1
+torchaudio=0.8.1=py38
+torchtext=0.9.1=py38
+torchvision=0.9.1=py38_cu111
+tqdm=4.62.3=pyhd8ed1ab_0
+transformers=4.16.2=pyhd8ed1ab_0
+wandb=0.10.31=pyhd8ed1ab_0
+yaml=0.2.5=h7f98852_2

@@ -1,0 +1,49 @@
+python3 train.py \
+--data_name coco_butd --cnn_type resnet152 --wemb_type glove \
+--margin 0.2 --max_violation --img_num_embeds 4 --txt_num_embeds 4 \
+--img_attention --txt_attention --img_finetune --txt_finetune \
+--mmd_weight 0.01 --unif_weight 0.01 \
+--batch_size 200 --warm_epoch 0 --num_epochs 80 \
+--optimizer adamw --lr_scheduler cosine --lr_step_size 30 --lr_step_gamma 0.1 \
+--warm_img --finetune_lr_lower 1 \
+--lr 1e-3 --txt_lr_scale 1 --img_pie_lr_scale 0.1 --txt_pie_lr_scale 0.1 \
+--eval_on_gpu --sync_bn --amp \
+--loss smooth_chamfer --eval_distance smooth_chamfer --temperature 16 \
+--txt_pooling rnn --arch slot --txt_attention_input wemb \
+--perceiver_img_pos_enc_type none --perceiver_txt_pos_enc_type sine \
+--perceiver_1x1 --perceiver_residual --perceiver_residual_norm --perceiver_residual_activation none \
+--perceiver_activation gelu \
+--perceiver_ff_mult 4 --perceiver_last_ln \
+--img_res_pool max --img_res_first_fc \
+--perceiver_input_dim 1024 --perceiver_query_dim 1024 \
+--perceiver_depth 4 --perceiver_weight_sharing \
+--remark coco_butd_bigru \
+--res_only_norm --img_1x1_dropout 0.1 --perceiver_pre_norm \
+--gpo_1x1 --gpo_rnn \
+--weight_decay 1e-4 --grad_clip 1 --lr_warmup -1 --unif_residual \
+--workers 4 --dropout 0.1 --caption_drop_prob 0.2 --butd_drop_prob 0.2
+
+python3 eval.py \
+--data_name coco_butd --cnn_type resnet152 --wemb_type glove \
+--margin 0.2 --max_violation --img_num_embeds 4 --txt_num_embeds 4 \
+--img_attention --txt_attention --img_finetune --txt_finetune \
+--mmd_weight 0.01 --unif_weight 0.01 \
+--batch_size 200 --warm_epoch 0 --num_epochs 80 \
+--optimizer adamw --lr_scheduler cosine --lr_step_size 30 --lr_step_gamma 0.1 \
+--warm_img --finetune_lr_lower 1 \
+--lr 1e-3 --txt_lr_scale 1 --img_pie_lr_scale 0.1 --txt_pie_lr_scale 0.1 \
+--eval_on_gpu --sync_bn --amp \
+--loss smooth_chamfer --eval_distance smooth_chamfer --temperature 16 \
+--txt_pooling rnn --arch slot --txt_attention_input wemb \
+--perceiver_img_pos_enc_type none --perceiver_txt_pos_enc_type sine \
+--perceiver_1x1 --perceiver_residual --perceiver_residual_norm --perceiver_residual_activation none \
+--perceiver_activation gelu \
+--perceiver_ff_mult 4 --perceiver_last_ln \
+--img_res_pool max --img_res_first_fc \
+--perceiver_input_dim 1024 --perceiver_query_dim 1024 \
+--perceiver_depth 4 --perceiver_weight_sharing \
+--remark coco_butd_bigru \
+--res_only_norm --img_1x1_dropout 0.1 --perceiver_pre_norm \
+--gpo_1x1 --gpo_rnn \
+--weight_decay 1e-4 --grad_clip 1 --lr_warmup -1 --unif_residual \
+--workers 4 --dropout 0.1 --caption_drop_prob 0.2 --butd_drop_prob 0.2
