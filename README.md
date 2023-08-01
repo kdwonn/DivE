@@ -1,5 +1,15 @@
 # Improving Cross-Modal Retrieval with Diverse Set of Embeddings
 
+[![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/2211.16761)
+
+This repository contains official source code for our paper:
+>[Improving Cross-Modal Retrieval with Diverse Set of Embeddings](https://arxiv.org/abs/2211.16761)  
+> [Dongwon Kim](https://kdwonn.github.io/),
+> [Namyup Kim](https://southflame.github.io/), and
+> [Suha Kwak](https://suhakwak.github.io/) <br>
+> POSTECH CSE<br>
+> CVPR (Highlight), Vancouver, 2023.
+
 ## Acknowledgement
 Parts of our codes are adopted from following repositories.
 
