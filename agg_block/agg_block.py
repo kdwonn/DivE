@@ -6,8 +6,8 @@ from torch import dropout, nn, einsum
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
-from perceiver.pos_encoding import build_position_encoding
-from perceiver.attention import *
+from agg_block.pos_encoding import build_position_encoding
+from agg_block.attention import *
     
 
 class AggregationBlock(nn.Module):

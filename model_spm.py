@@ -5,13 +5,13 @@ import torch.nn.functional as F
 import torch.nn.init
 import torchvision
 
-from perceiver.perceiver import AggregationBlock
+from agg_block.agg_block import AggregationBlock
 
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from einops import rearrange, reduce
 from transformers import BertModel
-from perceiver.attention import default
+from agg_block.attention import default
 
 def get_cnn(arch, pretrained):
     if arch == 'resnext_wsl':

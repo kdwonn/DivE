@@ -7,7 +7,7 @@ from torch import nn, einsum
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
-from perceiver.pos_encoding import build_position_encoding
+from agg_block.pos_encoding import build_position_encoding
 
 def exists(val):
     return val is not None

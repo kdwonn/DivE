@@ -2,7 +2,7 @@ import os, sys, pdb
 
 import argparse
 
-from perceiver.attention import default
+from agg_block.attention import default
 parser = argparse.ArgumentParser(description='Parameters for training PVSE')
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
