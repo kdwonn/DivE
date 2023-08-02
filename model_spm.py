@@ -146,15 +146,15 @@ class SetPredictionModule(nn.Module):
     ):
         super(SetPredictionModule, self).__init__()
         self.num_embeds = num_embeds
-        self.residual_norm = nn.LayerNorm(d_out) if args.perceiver_residual_norm else nn.Identity()
-        self.perceiver_residual = args.perceiver_residual
+        self.residual_norm = nn.LayerNorm(d_out) if args.spm_residual_norm else nn.Identity()
+        self.spm_residual = args.spm_residual
         self.res_act_local_dropout = nn.Dropout(args.res_act_local_dropout)
         self.res_act_global_dropout = nn.Dropout(args.res_act_global_dropout)
-        self.fc = nn.Linear(d_out, 1024) if args.perceiver_residual_fc else nn.Identity()
+        self.fc = nn.Linear(d_out, 1024) if args.spm_residual_fc else nn.Identity()
         self.res_only_norm = args.res_only_norm
         
         self.agg_block = AggregationBlock(
-            depth = args.perceiver_depth,
+            depth = args.spm_depth,
             input_channels = d_in,
             input_axis = axis,
             num_latents = num_embeds,
@@ -162,15 +162,15 @@ class SetPredictionModule(nn.Module):
             num_classes = d_out,
             attn_dropout = args.dropout,
             ff_dropout = args.dropout,
-            weight_tie_layers = args.perceiver_weight_sharing,
+            weight_tie_layers = args.spm_weight_sharing,
             pos_enc_type = pos_enc,
-            pre_norm = args.perceiver_pre_norm,
-            post_norm=args.perceiver_post_norm,
-            activation = args.perceiver_activation,
-            last_ln = args.perceiver_last_ln,
-            ff_mult = args.perceiver_ff_mult,
-            more_dropout = args.perceiver_more_dropout,
-            xavier_init = args.perceiver_xavier_init,
+            pre_norm = args.spm_pre_norm,
+            post_norm=args.spm_post_norm,
+            activation = args.spm_activation,
+            last_ln = args.spm_last_ln,
+            ff_mult = args.spm_ff_mult,
+            more_dropout = args.spm_more_dropout,
+            xavier_init = args.spm_xavier_init,
             query_fixed = args.query_fixed,
             query_xavier_init = args.query_xavier_init,
             query_type = 'slot' if args.query_slot else 'learned',
@@ -254,32 +254,32 @@ class EncoderImage(nn.Module):
         self.fc = nn.Linear(local_feat_dim, opt.embed_size)
         if opt.gpo_1x1:
             self.mlp = MLP(opt.embed_size, opt.embed_size // 2, opt.embed_size)
-            self.perceiver_fc = lambda x: self.img_1x1_dropout(self.mlp(self.fc(x)) + self.fc(x))
+            self.spm_fc = lambda x: self.img_1x1_dropout(self.mlp(self.fc(x)) + self.fc(x))
         else:
             self.mlp = None
-            self.perceiver_fc = self.fc if opt.perceiver_1x1 else nn.Identity()
+            self.spm_fc = self.fc if opt.spm_1x1 else nn.Identity()
         
         if 'slot' == opt.arch:
             self.spm = SetPredictionModule(
                 num_embeds=num_embeds, 
-                d_in=opt.perceiver_input_dim if opt.perceiver_1x1 else 2048, 
+                d_in=opt.spm_input_dim if opt.spm_1x1 else 2048, 
                 d_out=embed_size, 
                 axis=2, 
-                pos_enc=opt.perceiver_img_pos_enc_type, 
-                query_dim=opt.perceiver_query_dim,
+                pos_enc=opt.spm_img_pos_enc_type, 
+                query_dim=opt.spm_query_dim,
                 args=opt
             )
         elif 'pvse' == opt.arch:
-            self.spm = PIENet(num_embeds, opt.perceiver_input_dim, embed_size, opt.perceiver_input_dim // 2)
+            self.spm = PIENet(num_embeds, opt.spm_input_dim, embed_size, opt.spm_input_dim // 2)
             
-        self.residual = opt.perceiver_residual
+        self.residual = opt.spm_residual
         assert opt.img_res_first_fc or opt.img_res_last_fc
         assert opt.img_res_pool in ['avg', 'max']
         
         self.img_res_pool = opt.img_res_pool
-        self.inter_dim = opt.perceiver_input_dim if opt.img_res_first_fc else local_feat_dim
+        self.inter_dim = opt.spm_input_dim if opt.img_res_first_fc else local_feat_dim
         
-        self.residual_first_fc = self.perceiver_fc if opt.img_res_first_fc else nn.Identity()
+        self.residual_first_fc = self.spm_fc if opt.img_res_first_fc else nn.Identity()
         self.residual_last_fc = nn.Linear(self.inter_dim, embed_size) if opt.img_res_last_fc else nn.Identity()
         self.residual_first_pool = variable_len_pooling if opt.img_res_first_pool else lambda x, y, z: x
         self.residual_after_pool = variable_len_pooling if not opt.img_res_first_pool else lambda x, y, z: x
@@ -288,9 +288,9 @@ class EncoderImage(nn.Module):
             self.residual_after_pool = lambda x, y, z: x
         self.residual_last_pool = variable_len_pooling if opt.img_res_last_pool else lambda x, y, z: x
         
-        assert opt.perceiver_img_pos_enc_type == 'none' if self.butd else True
+        assert opt.spm_img_pos_enc_type == 'none' if self.butd else True
 
-        if opt.perceiver_xavier_init:
+        if opt.spm_xavier_init:
             self.init_weights()
         for idx, param in enumerate(self.cnn.parameters()):
             param.requires_grad = opt.img_finetune
@@ -355,7 +355,7 @@ class EncoderImage(nn.Module):
         if self.grid_drop_prob > 0:
             out_nxn, lengths = self.grid_feature_drop(out_nxn)
         out, attn, residual = self.spm(
-            local_feat=self.perceiver_fc(out_nxn), 
+            local_feat=self.spm_fc(out_nxn), 
             global_feat=self.global_feat_holder(self.residual_connection(out_nxn, lengths)),
             pad_mask=pad_mask,
             lengths=lengths
@@ -396,7 +396,7 @@ class EncoderText(nn.Module):
         self.txt_attention_head = opt.arch
         self.txt_attention_input_dim = word_dim if self.txt_attention_input == 'wemb' \
             else embed_size
-        self.residual = opt.perceiver_residual
+        self.residual = opt.spm_residual
         
         if opt.arch == 'pvse':
             self.spm = PIENet(num_embeds, self.txt_attention_input_dim, embed_size, word_dim//2, opt.dropout)
@@ -406,8 +406,8 @@ class EncoderText(nn.Module):
                 d_in=self.txt_attention_input_dim, 
                 d_out=embed_size, 
                 axis=1, 
-                pos_enc=opt.perceiver_txt_pos_enc_type, 
-                query_dim=opt.perceiver_query_dim,
+                pos_enc=opt.spm_txt_pos_enc_type, 
+                query_dim=opt.spm_query_dim,
                 args=opt
             )
         else:
@@ -515,7 +515,7 @@ class EncoderTextBERT(nn.Module):
         
         self.txt_attention_head = opt.arch
         self.txt_attention_input_dim = embed_size
-        self.residual = opt.perceiver_residual
+        self.residual = opt.spm_residual
         self.sep_bert_fc = opt.sep_bert_fc
         if self.sep_bert_fc:
             self.linear2 = nn.Linear(768, self.embed_size)
@@ -534,8 +534,8 @@ class EncoderTextBERT(nn.Module):
                 d_in=self.txt_attention_input_dim, 
                 d_out=embed_size, 
                 axis=1, 
-                pos_enc=opt.perceiver_txt_pos_enc_type, 
-                query_dim=opt.perceiver_query_dim,
+                pos_enc=opt.spm_txt_pos_enc_type, 
+                query_dim=opt.spm_query_dim,
                 args=opt
             )
         else:

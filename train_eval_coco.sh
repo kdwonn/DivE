@@ -10,15 +10,15 @@ python3 train.py \
 --eval_on_gpu --sync_bn --amp \
 --loss smooth_chamfer --eval_distance smooth_chamfer --temperature 16 \
 --txt_pooling rnn --arch slot --txt_attention_input wemb \
---perceiver_img_pos_enc_type none --perceiver_txt_pos_enc_type sine \
---perceiver_1x1 --perceiver_residual --perceiver_residual_norm --perceiver_residual_activation none \
---perceiver_activation gelu \
---perceiver_ff_mult 4 --perceiver_last_ln \
+--spm_img_pos_enc_type none --spm_txt_pos_enc_type sine \
+--spm_1x1 --spm_residual --spm_residual_norm --spm_residual_activation none \
+--spm_activation gelu \
+--spm_ff_mult 4 --spm_last_ln \
 --img_res_pool max --img_res_first_fc \
---perceiver_input_dim 1024 --perceiver_query_dim 1024 \
---perceiver_depth 4 --perceiver_weight_sharing \
+--spm_input_dim 1024 --spm_query_dim 1024 \
+--spm_depth 4 --spm_weight_sharing \
 --remark coco_butd_bigru \
---res_only_norm --img_1x1_dropout 0.1 --perceiver_pre_norm \
+--res_only_norm --img_1x1_dropout 0.1 --spm_pre_norm \
 --gpo_1x1 --gpo_rnn \
 --weight_decay 1e-4 --grad_clip 1 --lr_warmup -1 --unif_residual \
 --workers 4 --dropout 0.1 --caption_drop_prob 0.2 --butd_drop_prob 0.2
@@ -35,15 +35,15 @@ python3 eval.py \
 --eval_on_gpu --sync_bn --amp \
 --loss smooth_chamfer --eval_distance smooth_chamfer --temperature 16 \
 --txt_pooling rnn --arch slot --txt_attention_input wemb \
---perceiver_img_pos_enc_type none --perceiver_txt_pos_enc_type sine \
---perceiver_1x1 --perceiver_residual --perceiver_residual_norm --perceiver_residual_activation none \
---perceiver_activation gelu \
---perceiver_ff_mult 4 --perceiver_last_ln \
+--spm_img_pos_enc_type none --spm_txt_pos_enc_type sine \
+--spm_1x1 --spm_residual --spm_residual_norm --spm_residual_activation none \
+--spm_activation gelu \
+--spm_ff_mult 4 --spm_last_ln \
 --img_res_pool max --img_res_first_fc \
---perceiver_input_dim 1024 --perceiver_query_dim 1024 \
---perceiver_depth 4 --perceiver_weight_sharing \
+--spm_input_dim 1024 --spm_query_dim 1024 \
+--spm_depth 4 --spm_weight_sharing \
 --remark coco_butd_bigru \
---res_only_norm --img_1x1_dropout 0.1 --perceiver_pre_norm \
+--res_only_norm --img_1x1_dropout 0.1 --spm_pre_norm \
 --gpo_1x1 --gpo_rnn \
 --weight_decay 1e-4 --grad_clip 1 --lr_warmup -1 --unif_residual \
 --workers 4 --dropout 0.1 --caption_drop_prob 0.2 --butd_drop_prob 0.2
