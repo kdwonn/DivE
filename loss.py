@@ -24,6 +24,7 @@ def rbf_memory_efficient(x, y, gamma):
     """RBF kernel that does not cause memory shortage"""
     cdist = torch.cdist(x, y)
     return torch.exp(-gamma * cdist)
+
 class AsymmetricTripletLoss(nn.Module):
     def __init__(self, img_set_size, txt_set_size, distance_fn, opt, reduction='mean', txt_per_img=5):
         super(AsymmetricTripletLoss, self).__init__()
