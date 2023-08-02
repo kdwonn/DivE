@@ -6,8 +6,8 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from vocab import Vocabulary
-from model import PVSE
-from model_perceiver import VSE
+from model_pie import PVSE
+from model_spm import VSE
 from data import get_test_loader, get_loaders
 from option import parser, verify_input_args
 from distance import SetwiseDistance
