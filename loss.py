@@ -65,7 +65,7 @@ class AsymmetricTripletLoss(nn.Module):
             return 0.0
         x = l2norm(x) # Columns of x MUST be l2-normalized
         gram_x = x.bmm(x.transpose(1,2))
-        I = torch.autograd.Variable((torch.eye(x.size(1)) > 0.5).repeat(gram_x.size(0), 1, 1))
+        I = torch.tensor((torch.eye(x.size(1)) > 0.5).repeat(gram_x.size(0), 1, 1))
         if torch.cuda.is_available():
             I = I.cuda()
         gram_x.masked_fill_(I, 0.0)
@@ -85,7 +85,7 @@ class AsymmetricTripletLoss(nn.Module):
         if num_embeds == 1:
             return 0.0
         rbf = torch.exp(-t * torch.cdist(embs, embs).pow(2))
-        I = torch.autograd.Variable(repeat(
+        I = torch.tensor(repeat(
             torch.triu(torch.ones(rbf.shape[1], rbf.shape[1]), diagonal=1), 
             'n d -> b n d', 
             b=rbf.shape[0]

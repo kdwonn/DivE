@@ -7,7 +7,6 @@ import torch.nn.functional as F
 import torch.nn.init
 import torchtext
 import torchvision
-from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
@@ -30,8 +29,8 @@ def get_pad_mask(max_length, lengths, set_pad_to_one=True):
     ind = torch.arange(0, max_length).unsqueeze(0)
     if torch.cuda.is_available():
         ind = ind.cuda()
-    mask = Variable((ind >= lengths.unsqueeze(1))) if set_pad_to_one \
-        else Variable((ind < lengths.unsqueeze(1)))
+    mask = torch.tensor((ind >= lengths.unsqueeze(1))) if set_pad_to_one \
+        else torch.tensor((ind < lengths.unsqueeze(1)))
     return mask.cuda() if torch.cuda.is_available() else mask
 
 
@@ -106,8 +105,8 @@ class PVSE(nn.Module):
 
     def forward(self, images, sentences, img_len, lengths):
         with torch.cuda.amp.autocast(enabled=self.amp):
-            img_emb, img_attn, img_residual = self.img_enc(Variable(images))
-            txt_emb, txt_attn, txt_residual = self.txt_enc(Variable(sentences), lengths)
+            img_emb, img_attn, img_residual = self.img_enc(images)
+            txt_emb, txt_attn, txt_residual = self.txt_enc(sentences, lengths)
             return img_emb, txt_emb, img_attn, txt_attn, img_residual, txt_residual
 
 
