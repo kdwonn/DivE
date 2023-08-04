@@ -344,7 +344,12 @@ class EncoderImage(nn.Module):
         if not self.butd:
             out_nxn = self.cnn(images)
             s = out_nxn.shape[-1]
-            out_nxn = out_nxn.view(-1, self.local_feat_dim, int((s/self.local_feat_dim)**0.5), int((s/self.local_feat_dim)**0.5))
+            out_nxn = out_nxn.view(
+                -1, 
+                self.local_feat_dim, 
+                int((s/self.local_feat_dim)**0.5), 
+                int((s/self.local_feat_dim)**0.5)
+            )
             pad_mask = None
         else:
             out_nxn = rearrange(images, 'b (n 1) d -> b d n 1')
