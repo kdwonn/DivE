@@ -1,3 +1,8 @@
 .DS_Store
 .vscode/*
 .vscode/
+data/*
+vocab/*
+.vector_cache/
+logs/
+wandb/
