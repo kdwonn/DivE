@@ -3,7 +3,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/2211.16761)
 
 This repository contains official source code for our paper:
->[Improving Cross-Modal Retrieval with Diverse Set of Embeddings](https://arxiv.org/abs/2211.16761)  
+>[Improving Cross-Modal Retrieval with Set of Diverse Embeddings](https://arxiv.org/abs/2211.16761)  
 > [Dongwon Kim](https://kdwonn.github.io/),
 > [Namyup Kim](https://southflame.github.io/), and
 > [Suha Kwak](https://suhakwak.github.io/) <br>
