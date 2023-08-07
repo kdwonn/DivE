@@ -100,7 +100,6 @@ class AggregationBlock(nn.Module):
         for i in range(depth):
             should_cache = i >= 0 and weight_tie_layers
             cache_args = {'_cache': should_cache}
-            # cross attention layer, DETR decoder
             self.layers.append(nn.ModuleList([
                 get_cross_attn(**cache_args),
                 get_cross_postnorm(),
@@ -137,8 +136,6 @@ class AggregationBlock(nn.Module):
         x = self.get_queries(b).type_as(data)
 
         for i, (cross_attn, pn1, cross_ff, pn2) in enumerate(self.layers):
-            if i == len(self.layers) - 1 and self.first_order:
-                x = x.detach()
             x = cross_attn(x, context = data, mask = mask, k_pos = pos, q_pos = None) + x
             x = pn1(x)
             x = cross_ff(x) + x
