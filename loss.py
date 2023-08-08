@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 from torch.distributions.kl import kl_divergence 
 from torch.distributions import Normal
-from distance import SetwiseDistance
+from similarity import SetwiseDistance
 from einops import rearrange, repeat
 
 def cosine_sim(x, y):

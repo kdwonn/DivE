@@ -19,7 +19,7 @@ from eval import i2t, t2i, encode_data
 from logger import AverageMeter
 from option import parser, verify_input_args
 from sync_batchnorm import convert_model, SynchronizedBatchNorm2d
-from distance import SetwiseDistance
+from similarity import SetwiseDistance
 from model_spm import VSE
 
 import logging

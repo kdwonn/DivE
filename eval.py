@@ -10,7 +10,7 @@ from model_pie import PVSE
 from model_spm import VSE
 from data import get_test_loader, get_loaders
 from option import parser, verify_input_args
-from distance import SetwiseDistance
+from similarity import SetwiseDistance
 
 def encode_data(model, data_loader, butd, use_gpu=False):
     """Encode all images and sentences loadable by data_loader"""
