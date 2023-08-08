@@ -72,7 +72,10 @@ class SetwiseSimilarity(nn.Module):
                 torch.exp(self.temperature * dist.unsqueeze(0))
             ))).squeeze(0)
         
-        smooth_chamfer_dist = (first_term / (self.img_set_size * self.temperature) + second_term / (self.txt_set_size * self.temperature)) / (self.denominator)
+        smooth_chamfer_dist = (
+            first_term / (self.img_set_size * self.temperature) +\
+            second_term / (self.txt_set_size * self.temperature)
+        ) / (self.denominator)
 
         return smooth_chamfer_dist
     
