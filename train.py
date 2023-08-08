@@ -285,7 +285,8 @@ def main():
     wandb.watch(models=model, log_freq=1000, log='gradients')
     
     # similarity function options
-    train_similarity = SetwiseSimilarity(args.img_num_embeds, args.txt_num_embeds, args.denominator, args.temperature, args.temperature_txt_scale)
+    train_similarity = SetwiseSimilarity(
+        args.img_num_embeds, args.txt_num_embeds, args.denominator, args.temperature)
     if args.loss == 'smooth_chamfer':
         train_similarity_fn = train_similarity.smooth_chamfer_similarity
     elif args.loss == 'chamfer':
@@ -297,8 +298,8 @@ def main():
     else:
         assert False
     
-    eval_similarity = SetwiseSimilarity(args.img_num_embeds, args.txt_num_embeds, \
-        args.denominator, args.temperature, args.temperature_txt_scale)
+    eval_similarity = SetwiseSimilarity(
+        args.img_num_embeds, args.txt_num_embeds, args.denominator, args.temperature)
     if args.eval_similarity == 'smooth_chamfer':
         eval_similarity_fn = eval_similarity.smooth_chamfer_similarity
     elif args.eval_similarity == 'chamfer':

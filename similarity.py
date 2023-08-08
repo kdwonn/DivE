@@ -20,14 +20,13 @@ class MPsimilarity(nn.Module):
         return avg_similarity
     
 class SetwiseSimilarity(nn.Module):
-    def __init__(self, img_set_size, txt_set_size, denominator, temperature=1, temperature_txt_scale=1):
+    def __init__(self, img_set_size, txt_set_size, denominator, temperature=1):
         super(SetwiseSimilarity, self).__init__()
         # poolings
         self.img_set_size = img_set_size
         self.txt_set_size = txt_set_size
         self.denominator = denominator
         self.temperature = temperature
-        self.temperature_txt_scale = temperature_txt_scale # used when computing i2t similarity
         
         self.xy_max_pool = torch.nn.MaxPool2d((self.img_set_size, self.txt_set_size))
         self.xy_avg_pool = torch.nn.AvgPool2d((self.img_set_size, self.txt_set_size))
@@ -45,16 +44,16 @@ class SetwiseSimilarity(nn.Module):
         """
         dist = torch.cdist(img_embs, txt_embs)
         
-        right_term = -self.y_axis_sum_pool(
+        first_term = -self.y_axis_sum_pool(
             torch.log(self.x_axis_sum_pool(
-                torch.exp(-self.temperature * self.temperature_txt_scale * dist.unsqueeze(0))
+                torch.exp(-self.temperature * dist.unsqueeze(0))
             ))).squeeze(0)
-        left_term = -self.x_axis_sum_pool(
+        second_term = -self.x_axis_sum_pool(
             torch.log(self.y_axis_sum_pool(
                 torch.exp(-self.temperature * dist.unsqueeze(0))
             ))).squeeze(0)
         
-        smooth_chamfer_dist = (right_term / (self.img_set_size * self.temperature * self.temperature_txt_scale) + left_term / (self.txt_set_size * self.temperature)) / (self.denominator)
+        smooth_chamfer_dist = (first_term / (self.img_set_size * self.temperature) + second_term / (self.txt_set_size * self.temperature)) / (self.denominator)
 
         return smooth_chamfer_dist
     
@@ -64,16 +63,16 @@ class SetwiseSimilarity(nn.Module):
         """
         dist = cosine_sim(img_embs, txt_embs)
         
-        right_term = self.y_axis_sum_pool(
+        first_term = self.y_axis_sum_pool(
             torch.log(self.x_axis_sum_pool(
-                torch.exp(self.temperature * self.temperature_txt_scale * dist.unsqueeze(0))
+                torch.exp(self.temperature * dist.unsqueeze(0))
             ))).squeeze(0)
-        left_term = self.x_axis_sum_pool(
+        second_term = self.x_axis_sum_pool(
             torch.log(self.y_axis_sum_pool(
                 torch.exp(self.temperature * dist.unsqueeze(0))
             ))).squeeze(0)
         
-        smooth_chamfer_dist = (right_term / (self.img_set_size * self.temperature * self.temperature_txt_scale) + left_term / (self.txt_set_size * self.temperature)) / (self.denominator)
+        smooth_chamfer_dist = (first_term / (self.img_set_size * self.temperature) + second_term / (self.txt_set_size * self.temperature)) / (self.denominator)
 
         return smooth_chamfer_dist
     
@@ -83,10 +82,10 @@ class SetwiseSimilarity(nn.Module):
         """
         dist = cosine_sim(img_embs, txt_embs)
         
-        right_term = self.y_axis_sum_pool(self.x_axis_max_pool(dist.unsqueeze(0))).squeeze(0)
-        left_term = self.x_axis_sum_pool(self.y_axis_max_pool(dist.unsqueeze(0))).squeeze(0)
+        first_term = self.y_axis_sum_pool(self.x_axis_max_pool(dist.unsqueeze(0))).squeeze(0)
+        second_term = self.x_axis_sum_pool(self.y_axis_max_pool(dist.unsqueeze(0))).squeeze(0)
         
-        chamfer_dist = (right_term / self.img_set_size + left_term / self.txt_set_size) / self.denominator
+        chamfer_dist = (first_term / self.img_set_size + second_term / self.txt_set_size) / self.denominator
 
         return chamfer_dist
     

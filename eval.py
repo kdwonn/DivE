@@ -189,7 +189,8 @@ def evalrank(model, args, split='test'):
     print('Images: %d, Sentences: %d' % (img_embs.shape[0] / nreps, txt_embs.shape[0]))
     
     img_set_size, txt_set_size = args.img_num_embeds, args.txt_num_embeds
-    similarity = SetwiseSimilarity(img_set_size, txt_set_size, args.denominator, args.temperature, args.temperature_txt_scale)
+    similarity = SetwiseSimilarity(
+        img_set_size, txt_set_size, args.denominator, args.temperature)
     if args.loss == 'smooth_chamfer':
         similarity_fn = similarity.smooth_chamfer_similarity
     elif args.loss == 'chamfer':
