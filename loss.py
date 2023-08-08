@@ -25,9 +25,9 @@ def rbf_memory_efficient(x, y, gamma):
     cdist = torch.cdist(x, y)
     return torch.exp(-gamma * cdist)
 
-class AsymmetricTripletLoss(nn.Module):
+class TripletLoss(nn.Module):
     def __init__(self, img_set_size, txt_set_size, similarity_fn, opt, reduction='mean', txt_per_img=5):
-        super(AsymmetricTripletLoss, self).__init__()
+        super(TripletLoss, self).__init__()
         
         # loss hyperparameters
         self.margin = opt.margin if hasattr(opt, 'margin') else 1.0

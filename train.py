@@ -14,7 +14,7 @@ import wandb
 
 import data
 from vocab import Vocabulary
-from loss import AsymmetricTripletLoss
+from loss import TripletLoss
 from eval import i2t, t2i, encode_data
 from logger import AverageMeter
 from option import parser, verify_input_args
@@ -314,7 +314,7 @@ def main():
     # Loss and optimizer
     if args.loss in ['smooth_chamfer', 'chamfer', 'max', 'mp']:
         # assert args.fast_batch
-        criterion = AsymmetricTripletLoss(
+        criterion = TripletLoss(
             img_set_size=args.img_num_embeds, 
             txt_set_size=args.txt_num_embeds, 
             similarity_fn=train_similarity_fn, 
