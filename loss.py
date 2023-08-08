@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 from torch.distributions.kl import kl_divergence 
 from torch.distributions import Normal
-from similarity import SetwiseDistance
+from similarity import SetwiseSimilarity
 from einops import rearrange, repeat
 
 def cosine_sim(x, y):
@@ -26,7 +26,7 @@ def rbf_memory_efficient(x, y, gamma):
     return torch.exp(-gamma * cdist)
 
 class AsymmetricTripletLoss(nn.Module):
-    def __init__(self, img_set_size, txt_set_size, distance_fn, opt, reduction='mean', txt_per_img=5):
+    def __init__(self, img_set_size, txt_set_size, similarity_fn, opt, reduction='mean', txt_per_img=5):
         super(AsymmetricTripletLoss, self).__init__()
         
         # loss hyperparameters
@@ -44,8 +44,8 @@ class AsymmetricTripletLoss(nn.Module):
         self.max_violation = opt.max_violation if hasattr(opt, 'max_violation') else False
         self.unif_residual = opt.unif_residual
         
-        # set_distance hyperparameters
-        self.distance_fn = distance_fn
+        # set_similarity hyperparameters
+        self.similarity_fn = similarity_fn
         self.img_set_size, self.txt_set_size = img_set_size, txt_set_size
         self.txt_per_img = txt_per_img
         """
@@ -122,8 +122,8 @@ class AsymmetricTripletLoss(nn.Module):
         img_embs = img_embs.reshape(-1, img_embs.shape[-1])
         txt_embs = txt_embs.reshape(-1, txt_embs.shape[-1])
         
-        # Compute setwise distance with provided set distance metric
-        setwise_dist = self.distance_fn(img_embs, txt_embs)
+        # Compute setwise similarity with provided set similarity metric
+        setwise_dist = self.similarity_fn(img_embs, txt_embs)
         
         # generate mask based on the computed number of sets per images
         mask = (torch.eye(setwise_dist.shape[0]) > .5).cuda()

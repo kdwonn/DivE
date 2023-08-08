@@ -19,7 +19,7 @@ from eval import i2t, t2i, encode_data
 from logger import AverageMeter
 from option import parser, verify_input_args
 from sync_batchnorm import convert_model, SynchronizedBatchNorm2d
-from similarity import SetwiseDistance
+from similarity import SetwiseSimilarity
 from model_spm import VSE
 
 import logging
@@ -122,7 +122,7 @@ def train(epoch, data_loader, model, criterion, optimizer, scaler, args, lr_warm
     return losses.avg, losses_dict, stat_dict
         
 
-def validate(dataset, data_loader, model, args, distance_fn, validation, epoch=-1, best_score=None):
+def validate(dataset, data_loader, model, args, similarity_fn, validation, epoch=-1, best_score=None):
     # switch to eval mode
     model.eval()
 
@@ -136,12 +136,12 @@ def validate(dataset, data_loader, model, args, distance_fn, validation, epoch=-
         for i in range(5):
             r, rt0 = i2t(
                 img_embs[i*5000:(i + 1)*5000], txt_embs[i*5000:(i + 1)*5000], 
-                distance_fn,
+                similarity_fn,
                 nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
             
             ri, rti0 = t2i(
                 img_embs[i*5000:(i + 1)*5000], txt_embs[i*5000:(i + 1)*5000], 
-                distance_fn,
+                similarity_fn,
                 nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
             
             r = (r[0], r[1], r[2], r[3], r[3] / img_embs.shape[0], r[4], r[4] / img_embs.shape[0])
@@ -169,9 +169,9 @@ def validate(dataset, data_loader, model, args, distance_fn, validation, epoch=-
     else:
         recall_1k = (0, 0, 0, 0, 0, 0)
     
-    (r1, r5, r10, medr, meanr), (ranks, top1) = i2t(img_embs, txt_embs, distance_fn,
+    (r1, r5, r10, medr, meanr), (ranks, top1) = i2t(img_embs, txt_embs, similarity_fn,
             nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
-    (r1i, r5i, r10i, medri, meanri), (ranksi, top1i) = t2i(img_embs, txt_embs, distance_fn,
+    (r1i, r5i, r10i, medri, meanri), (ranksi, top1i) = t2i(img_embs, txt_embs, similarity_fn,
             nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
 
     # sum of recalls to be used for early stopping
@@ -284,29 +284,29 @@ def main():
         
     wandb.watch(models=model, log_freq=1000, log='gradients')
     
-    # distance function options
-    train_distance = SetwiseDistance(args.img_num_embeds, args.txt_num_embeds, args.denominator, args.temperature, args.temperature_txt_scale)
+    # similarity function options
+    train_similarity = SetwiseSimilarity(args.img_num_embeds, args.txt_num_embeds, args.denominator, args.temperature, args.temperature_txt_scale)
     if args.loss == 'smooth_chamfer':
-        train_distance_fn = train_distance.smooth_chamfer_distance
+        train_similarity_fn = train_similarity.smooth_chamfer_similarity
     elif args.loss == 'chamfer':
-        train_distance_fn = train_distance.chamfer_distance
+        train_similarity_fn = train_similarity.chamfer_similarity
     elif args.loss == 'max':
-        train_distance_fn = train_distance.max_distance
+        train_similarity_fn = train_similarity.max_similarity
     elif args.loss == 'mp':
-        train_distance_fn = train_distance.avg_distance
+        train_similarity_fn = train_similarity.avg_similarity
     else:
         assert False
     
-    eval_distance = SetwiseDistance(args.img_num_embeds, args.txt_num_embeds, \
+    eval_similarity = SetwiseSimilarity(args.img_num_embeds, args.txt_num_embeds, \
         args.denominator, args.temperature, args.temperature_txt_scale)
-    if args.eval_distance == 'smooth_chamfer':
-        eval_distance_fn = eval_distance.smooth_chamfer_distance
-    elif args.eval_distance == 'chamfer':
-        eval_distance_fn = eval_distance.chamfer_distance
-    elif args.eval_distance == 'max':
-        eval_distance_fn = eval_distance.max_distance
+    if args.eval_similarity == 'smooth_chamfer':
+        eval_similarity_fn = eval_similarity.smooth_chamfer_similarity
+    elif args.eval_similarity == 'chamfer':
+        eval_similarity_fn = eval_similarity.chamfer_similarity
+    elif args.eval_similarity == 'max':
+        eval_similarity_fn = eval_similarity.max_similarity
     elif args.loss == 'mp':
-        eval_distance_fn = train_distance_fn
+        eval_similarity_fn = train_similarity_fn
     else:
         assert False
             
@@ -316,7 +316,7 @@ def main():
         criterion = AsymmetricTripletLoss(
             img_set_size=args.img_num_embeds, 
             txt_set_size=args.txt_num_embeds, 
-            distance_fn=train_distance_fn, 
+            similarity_fn=train_similarity_fn, 
             opt=args, txt_per_img=txt_per_img
         )
     else:
@@ -330,7 +330,7 @@ def main():
         {'params': list(set(module.txt_enc.spm.parameters())), 'lr': args.lr * args.txt_pie_lr_scale}
     ]
     if args.loss == 'mp':
-        param_groups += [{'params':train_distance.parameters(), 'lr': args.lr}]
+        param_groups += [{'params':train_similarity.parameters(), 'lr': args.lr}]
     
     if args.optimizer == 'adam':
         optimizer = torch.optim.Adam(param_groups, lr=args.lr, weight_decay=args.weight_decay, amsgrad=True)
@@ -376,7 +376,7 @@ def main():
         # evaluate on validation set
         with torch.no_grad():
             if epoch % args.eval_epoch == 0:
-                val_score, i2t_recall, t2i_recall, recall_1k = validate(None, val_loader, model, args, eval_distance_fn, True, epoch, best_score)
+                val_score, i2t_recall, t2i_recall, recall_1k = validate(None, val_loader, model, args, eval_similarity_fn, True, epoch, best_score)
                 wandb.log({"val i2t R@1" : i2t_recall[0]}, step=total_iter)
                 wandb.log({"val i2t R@5" : i2t_recall[1]}, step=total_iter)
                 wandb.log({"val i2t R@10" : i2t_recall[2]}, step=total_iter)

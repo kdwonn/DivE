@@ -10,7 +10,7 @@ from model_pie import PVSE
 from model_spm import VSE
 from data import get_test_loader, get_loaders
 from option import parser, verify_input_args
-from similarity import SetwiseDistance
+from similarity import SetwiseSimilarity
 
 def encode_data(model, data_loader, butd, use_gpu=False):
     """Encode all images and sentences loadable by data_loader"""
@@ -50,7 +50,7 @@ def encode_data(model, data_loader, butd, use_gpu=False):
     return img_embs, txt_embs
 
 
-def i2t(images, sentences, distance_fn, nreps=1, npts=None, return_ranks=False, use_gpu=False, is_cosine=True):
+def i2t(images, sentences, similarity_fn, nreps=1, npts=None, return_ranks=False, use_gpu=False, is_cosine=True):
     """
     Images->Text (Image Annotation)
     Images: (nreps*N, K) matrix of images
@@ -72,7 +72,7 @@ def i2t(images, sentences, distance_fn, nreps=1, npts=None, return_ranks=False, 
                 sim = im.mm(sentences.t()).view(-1)
             else:
                 _, K, D = im.shape
-                sim = distance_fn(im.view(-1, D), sentences.view(-1, D)).flatten()
+                sim = similarity_fn(im.view(-1, D), sentences.view(-1, D)).flatten()
         else: 
             sim = np.tensordot(im, sentences, axes=[2, 2]).max(axis=(0,1,3)).flatten() \
                     if len(sentences.shape) == 3 else np.dot(im, sentences.T).flatten()
@@ -107,7 +107,7 @@ def i2t(images, sentences, distance_fn, nreps=1, npts=None, return_ranks=False, 
         return (r1, r5, r10, medr, meanr)
 
 
-def t2i(images, sentences, distance_fn, nreps=1, npts=None, return_ranks=False, use_gpu=False, is_cosine=True):
+def t2i(images, sentences, similarity_fn, nreps=1, npts=None, return_ranks=False, use_gpu=False, is_cosine=True):
     """
     Text->Images (Image Search)
     Images: (nreps*N, K) matrix of images
@@ -131,7 +131,7 @@ def t2i(images, sentences, distance_fn, nreps=1, npts=None, return_ranks=False, 
             if len(sentences.shape) == 2:
                 sim = queries.mm(ims.t())
             else:
-                sim = distance_fn(ims.view(-1, ims.size(-1)), queries.view(-1, queries.size(-1))).t()
+                sim = similarity_fn(ims.view(-1, ims.size(-1)), queries.view(-1, queries.size(-1))).t()
         else:
             sim = np.tensordot(queries, ims, axes=[2, 2]).max(axis=(1,3)) \
                     if len(sentences.shape) == 3 else np.dot(queries, ims.T)
@@ -189,13 +189,13 @@ def evalrank(model, args, split='test'):
     print('Images: %d, Sentences: %d' % (img_embs.shape[0] / nreps, txt_embs.shape[0]))
     
     img_set_size, txt_set_size = args.img_num_embeds, args.txt_num_embeds
-    distance = SetwiseDistance(img_set_size, txt_set_size, args.denominator, args.temperature, args.temperature_txt_scale)
+    similarity = SetwiseSimilarity(img_set_size, txt_set_size, args.denominator, args.temperature, args.temperature_txt_scale)
     if args.loss == 'smooth_chamfer':
-        distance_fn = distance.smooth_chamfer_distance
+        similarity_fn = similarity.smooth_chamfer_similarity
     elif args.loss == 'chamfer':
-        distance_fn = distance.chamfer_distance
+        similarity_fn = similarity.chamfer_similarity
     elif args.loss == 'max':
-        distance_fn = distance.max_distance
+        similarity_fn = similarity.max_similarity
     else:
         raise NotImplementedError
     
@@ -206,12 +206,12 @@ def evalrank(model, args, split='test'):
         for i in range(5):
             r, rt0 = i2t(
                 img_embs[i*5000:(i + 1)*5000], txt_embs[i*5000:(i + 1)*5000], 
-                distance_fn,
+                similarity_fn,
                 nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
             
             ri, rti0 = t2i(
                 img_embs[i*5000:(i + 1)*5000], txt_embs[i*5000:(i + 1)*5000], 
-                distance_fn,
+                similarity_fn,
                 nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
             
             r = (r[0], r[1], r[2], r[3], r[3] / n_samples, r[4], r[4] / n_samples)
@@ -236,8 +236,8 @@ def evalrank(model, args, split='test'):
         print("Text to image: %.2f %.2f %.2f %.2f (%.2f) %.2f (%.2f)" % mean_metrics[7:14])
 
     # no cross-validation, full evaluation
-    r, rt = i2t(img_embs, txt_embs, distance_fn, nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
-    ri, rti = t2i(img_embs, txt_embs, distance_fn, nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
+    r, rt = i2t(img_embs, txt_embs, similarity_fn, nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
+    ri, rti = t2i(img_embs, txt_embs, similarity_fn, nreps=nreps, return_ranks=True, use_gpu=args.eval_on_gpu)
         
     ar = (r[0] + r[1] + r[2]) / 3
     ari = (ri[0] + ri[1] + ri[2]) / 3
