@@ -1,8 +1,8 @@
 .DS_Store
 .vscode/*
 .vscode/
-data/
-vocab/
+data/coco_butd/
+vocab/*.json
 .vector_cache/
 logs/
 wandb/

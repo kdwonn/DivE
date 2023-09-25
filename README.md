@@ -18,9 +18,49 @@ Parts of our codes are adopted from the following repositories.
 * https://github.com/lucidrains/perceiver-pytorch
 
 ## Dataset
-For now, provided training script is only for Faster-RCNN + bi-GRU experimental setting on COCO dataset.
-We use the dataset preparation scripts from https://github.com/kuanghuei/SCAN#download-data.
-Place the precomp folder under ./data/coco_butd, and the vocab file under ./vocab.
+
+```
+data
+弛 
+戍式式 coco_download.sh  
+戍式式 coco # can be downloaded with the coco_download.sh 
+弛   戍式式 images
+弛   弛      戍式式 ......
+弛   弛
+弛   戌式式 annotations 
+弛          戍式式 ......
+弛
+戍式式 coco_butd
+弛   戌式式 precomp  
+弛          戍式式 train_ids.txt
+弛          戍式式 train_caps.txt
+弛          戍式式 ......   
+弛
+戍式式 f30k 
+弛   戍式式 images
+弛   弛      戍式式 ......
+弛   弛
+弛   戍式式 dataset_flickr30k.json
+弛   戍式式......  
+弛
+戌式式 f30k_butd
+    戌式式 precomp  
+           戍式式 train_ids.txt
+           戍式式 train_caps.txt
+           戍式式 ......
+
+vocab # included in this repo
+弛
+戍式式 coco_butd_vocab.pkl
+戍式式 ......
+
+```
+
+- `coco_butd` and `f30k_butd`: Datasets used for the Faster-RCNN image backbone. We use the pre-computed features provided by SCAN, which can be downloaded via https://github.com/kuanghuei/SCAN#download-data.
+
+- `coco` and `f30k`: Datasets used for the CNN backbones. Please refer the [COCO download script](./data/coco_download.sh) and [Flickr30K website](http://shannon.cs.illinois.edu/DenotationGraph/) to download the images and captions. 
+
+**Note**: Downloaded datasets should be placed according to the directory structure presented above.
 
 ## Requirements
 You can install requirements using conda.
