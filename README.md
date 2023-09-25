@@ -20,39 +20,32 @@ Parts of our codes are adopted from the following repositories.
 ## Dataset
 
 ```
-data
-¦¢ 
-¦§¦¡¦¡ coco_download.sh  
-¦§¦¡¦¡ coco # can be downloaded with the coco_download.sh 
-¦¢   ¦§¦¡¦¡ images
-¦¢   ¦¢      ¦§¦¡¦¡ ......
-¦¢   ¦¢
-¦¢   ¦¦¦¡¦¡ annotations 
-¦¢          ¦§¦¡¦¡ ......
-¦¢
-¦§¦¡¦¡ coco_butd
-¦¢   ¦¦¦¡¦¡ precomp  
-¦¢          ¦§¦¡¦¡ train_ids.txt
-¦¢          ¦§¦¡¦¡ train_caps.txt
-¦¢          ¦§¦¡¦¡ ......   
-¦¢
-¦§¦¡¦¡ f30k 
-¦¢   ¦§¦¡¦¡ images
-¦¢   ¦¢      ¦§¦¡¦¡ ......
-¦¢   ¦¢
-¦¢   ¦§¦¡¦¡ dataset_flickr30k.json
-¦¢   ¦§¦¡¦¡......  
-¦¢
-¦¦¦¡¦¡ f30k_butd
-    ¦¦¦¡¦¡ precomp  
-           ¦§¦¡¦¡ train_ids.txt
-           ¦§¦¡¦¡ train_caps.txt
-           ¦§¦¡¦¡ ......
+data 
+â”œâ”€ coco_download.sh  
+â”œâ”€ coco # can be downloaded with the coco_download.sh 
+â”‚  â”œâ”€ images
+â”‚  â”‚  â””â”€ ......
+â”‚  â””â”€ annotations 
+â”‚     â””â”€ ......
+â”œâ”€ coco_butd
+â”‚  â””â”€ precomp  
+â”‚     â”œâ”€ train_ids.txt
+â”‚     â”œâ”€ train_caps.txt
+â”‚     â””â”€ ......   
+â”œâ”€ f30k 
+â”‚  â”œâ”€ images
+â”‚  â”‚  â””â”€ ......
+â”‚  â”œâ”€ dataset_flickr30k.json
+â”‚  â””â”€ ......  
+â””â”€ f30k_butd
+   â””â”€ precomp  
+      â”œâ”€ train_ids.txt
+      â”œâ”€ train_caps.txt
+      â””â”€ ......
 
 vocab # included in this repo
-¦¢
-¦§¦¡¦¡ coco_butd_vocab.pkl
-¦§¦¡¦¡ ......
+â”œâ”€ coco_butd_vocab.pkl
+â””â”€ ......
 
 ```
 
