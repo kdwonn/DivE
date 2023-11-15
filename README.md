@@ -51,7 +51,7 @@ vocab # included in this repo
 
 - `coco_butd` and `f30k_butd`: Datasets used for the Faster-RCNN image backbone. We use the pre-computed features provided by SCAN, which can be downloaded via https://github.com/kuanghuei/SCAN#download-data.
 
-- `coco` and `f30k`: Datasets used for the CNN backbones. Please refer the [COCO download script](./data/coco_download.sh) and [Flickr30K website](http://shannon.cs.illinois.edu/DenotationGraph/) to download the images and captions. 
+- `coco` and `f30k`: Datasets used for the CNN backbones. Please refer the [COCO download script](./data/coco_download.sh) and [Flickr30K website](http://shannon.cs.illinois.edu/DenotationGraph/)+[Flickr30K .json](https://cs.stanford.edu/people/karpathy/deepimagesent/) to download the images and captions. 
 
 **Note**: Downloaded datasets should be placed according to the directory structure presented above.
 
